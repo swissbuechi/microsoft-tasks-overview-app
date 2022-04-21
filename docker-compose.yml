@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  microsoft-tasks-overview-app:
+    image: ghcr.io/netider-ch/microsoft-tasks-overview-app:main
+    container_name: microsoft-tasks-overview-app
+    environment:
+      - VUE_APP_AAD_TENANT_ID=${AAD_TENANT_ID}
+      - VUE_APP_AAD_CLIENT_ID=${AAD_CLIENT_ID}
+    restart: unless-stopped
+#    ports:
+#      - "8082:80"
