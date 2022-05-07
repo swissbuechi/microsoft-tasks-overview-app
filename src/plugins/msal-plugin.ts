@@ -35,20 +35,20 @@ export class MsalPlugin implements PluginObject<MsalPluginOptions> {
         vue.prototype.$msal = Vue.observable(msalPluginInstance);
     }
 
-    public async signInPopUp() {
-        try {
-            const loginRequest: msal.PopupRequest = {
-                // scopes: ["User.Read"],
-                scopes: ["https://graph.microsoft.com/.default"],
-            };
-            const loginResponse: msal.AuthenticationResult = await msalInstance.loginPopup(loginRequest);
-            this.isAuthenticated = !!loginResponse.account;
-            // do something with this?
-        } catch (err) {
-            // handle error
-            this.isAuthenticated = false;
-        }
-    }
+    // public async signInPopUp() {
+    //     try {
+    //         const loginRequest: msal.PopupRequest = {
+    //             // scopes: ["User.Read"],
+    //             scopes: ["https://graph.microsoft.com/.default"],
+    //         };
+    //         const loginResponse: msal.AuthenticationResult = await msalInstance.loginPopup(loginRequest);
+    //         this.isAuthenticated = !!loginResponse.account;
+    //         // do something with this?
+    //     } catch (err) {
+    //         // handle error
+    //         this.isAuthenticated = false;
+    //     }
+    // }
 
     public async signInRedirect() {
         try {
@@ -86,14 +86,15 @@ export class MsalPlugin implements PluginObject<MsalPluginOptions> {
         this.isAuthenticated = false;
     }
 
-    public async acquireToken(scopes = ['user.read', 'openid', 'profile', 'email']) {
+    public async acquireToken(scopes = ['user.read', 'openid', 'profile', 'email'], idToken: boolean) {
         const request = {
             scopes: scopes,
             account: msalInstance.getAllAccounts()[0]
         };
         try {
-            const response = await msalInstance.acquireTokenSilent(request);
-            return response.accessToken;
+            const response = await msalInstance.acquireTokenSilent(request)
+            if (idToken) return response.idToken
+            return response.accessToken
         } catch (error) {
             if (error instanceof msal.InteractionRequiredAuthError) {
                 return msalInstance.acquireTokenPopup(request).catch((popupError) => {
@@ -145,9 +146,15 @@ export class MsalPlugin implements PluginObject<MsalPluginOptions> {
         return accounts && accounts.length > 0;
     }
 
-    private getName(): any {
+    public getName(): any {
         const accounts: msal.AccountInfo[] = msalInstance.getAllAccounts();
-        return this.name = accounts[0].name;
+        return this.name = accounts[0]?.name;
     }
 
+    public getRoles(): any {
+        const accounts: msal.AccountInfo[] = msalInstance.getAllAccounts();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return accounts[0].idTokenClaims?.roles;
+    }
 }

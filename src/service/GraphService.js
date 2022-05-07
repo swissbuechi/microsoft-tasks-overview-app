@@ -1,12 +1,43 @@
 import AuthService from '@/service/AuthService'
 
-const GRAPH_BASE = 'https://graph.microsoft.com/beta'
+const GRAPH_BASE = 'https://graph.microsoft.com/v1.0'
 const GRAPH_SCOPES = ['user.read', 'user.readbasic.all']
 
 export default {
 
-    async getMyTasks() {
+    async getMyPlannerTasks() {
         let resp = await callGraph('/me/planner/tasks', ['Tasks.Read'])
+        if (resp) {
+            let data = await resp.json()
+            return data
+        }
+    },
+
+    async getPlannerTasks(userId) {
+        let resp = await callGraph('/users/' + userId + '/planner/tasks', ['Tasks.Read'])
+        if (resp) {
+            let data = await resp.json()
+            return data
+        }
+    },
+
+    async getPlannerTask(id) {
+        let resp = await callGraph('/planner/tasks/' + id, ['Tasks.Read'])
+        if (resp) {
+            let data = await resp.json()
+            return data
+        }
+    },
+
+    async getMyToDoTaskLists() {
+        let resp = await callGraph('/me/todo/lists', ['Tasks.Read'])
+        if (resp) {
+            let data = await resp.json()
+            return data
+        }
+    },
+    async getMyToDoTasks(listId) {
+        let resp = await callGraph('/me/todo/lists/' + listId + '/tasks', ['Tasks.Read'])
         if (resp) {
             let data = await resp.json()
             return data

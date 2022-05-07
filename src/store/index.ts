@@ -2,13 +2,15 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import {message} from '@/store/message.module'
-import {task} from '@/store/task.module'
+import {myTask} from '@/store/me.planner.module'
+import {otherTask} from '@/store/others.planner.module'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
     modules: {
         message,
-        task
+        myTask,
+        otherTask
     }
 });
