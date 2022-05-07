@@ -20,7 +20,7 @@
         <v-row align="center" class="justify-center">
           <a href="https://netider.ch" target="_blank">
             <v-img alt="netider.ch it solutions Logo" class="shrink mt-5 mb-5" src="@/assets/netider.png"
-                   width="200px"/>
+                   width="120px"/>
           </a>
         </v-row>
         <br>

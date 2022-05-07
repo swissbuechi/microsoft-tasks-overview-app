@@ -26,6 +26,9 @@ export default {
   components: {
     TasksListComponent,
   },
+  mounted() {
+    this.retrieveTasks()
+  },
   computed: {
     plannerTasks() {
       return this.$store.state.myTask.tasks

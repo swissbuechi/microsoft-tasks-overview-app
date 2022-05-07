@@ -7,16 +7,15 @@
           <v-spacer></v-spacer>
           <v-autocomplete
               class="mt-6"
-              v-model="model"
+              v-model="user"
               :items="items"
               :loading="isLoading"
-              :search-input.sync="search"
+              :search-input.sync="userSearch"
               hide-no-data
-              hide-selected
-              item-text="Description"
-              item-value="API"
+              item-text="displayName"
               prepend-icon="mdi-account-group"
               return-object
+              clearable
           ></v-autocomplete>
           <v-spacer></v-spacer>
         </v-toolbar>
@@ -30,6 +29,7 @@
             :items="plannerTasks"
             :retrieve-items="retrieveTasks"
             :site-size="siteSize"
+            :loading="plannterTasksLoading"
         />
       </v-col>
     </v-row>
@@ -37,6 +37,7 @@
 </template>
 <script>
 import TasksListComponent from "@/components/planner/TasksListComponent";
+import GraphService from "@/service/GraphService";
 
 export default {
   data: () => ({
@@ -44,8 +45,8 @@ export default {
     descriptionLimit: 60,
     entries: [],
     isLoading: false,
-    model: null,
-    search: null,
+    user: null,
+    userSearch: null,
 
     headers: [
       {text: 'Title', value: 'title'},
@@ -62,55 +63,42 @@ export default {
       return this.$store.state.otherTask.tasks
     },
 
-    fields() {
-      if (!this.model) return []
+    plannterTasksLoading() {
+      return this.$store.state.otherTask.status.tasks.loading
+    },
 
-      return Object.keys(this.model).map(key => {
+    fields() {
+      if (!this.user) return []
+
+      return Object.keys(this.user).map(key => {
         return {
           key,
-          value: this.model[key] || 'n/a',
+          value: this.user[key] || 'n/a',
         }
       })
     },
     items() {
-      return this.entries.map(entry => {
-        const Description = entry.Description.length > this.descriptionLimit
-            ? entry.Description.slice(0, this.descriptionLimit) + '...'
-            : entry.Description
-
-        return Object.assign({}, entry, {Description})
-      })
+      return this.entries
     },
   },
 
   watch: {
-    search(val) {
-      // Items have already been loaded
-      if (this.items.length > 0) return
-
-      // Items have already been requested
-      if (this.isLoading) return
-
+    userSearch(val) {
+      if (val === '') return
       this.isLoading = true
-
-      // Lazily load input items
-      fetch('https://api.publicapis.org/entries')
-          .then(res => res.json())
-          .then(res => {
-            const {count, entries} = res
-            this.count = count
-            this.entries = entries
-          })
-          .catch(err => {
-            console.log(err)
-          })
-          .finally(() => (this.isLoading = false))
+      GraphService.searchUsers(val).then(response => {
+        this.entries = response.value
+        this.isLoading = false
+      })
     },
+    user() {
+      this.retrieveTasks()
+    }
   },
 
   methods: {
     retrieveTasks() {
-      this.$store.dispatch("otherTask/loadPlannerTasks", "d3fc5acc-2ca2-4973-9282-615abff365f2")
+      this.$store.dispatch("otherTask/loadPlannerTasks", this.user.id)
     }
   }
 }

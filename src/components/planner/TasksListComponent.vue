@@ -59,9 +59,6 @@ export default {
     siteSize: null,
     loading: null
   },
-  mounted() {
-    this.retrieveItems()
-  },
   methods: {
     handleClick(value) {
       this.$router.push("/planner/task/" + value.id)
